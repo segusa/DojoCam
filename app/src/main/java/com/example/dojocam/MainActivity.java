@@ -1,7 +1,13 @@
 package com.example.dojocam;
 
+import android.content.Context;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
+import com.chaquo.python.PyObject;
+import com.chaquo.python.Python;
+import com.chaquo.python.android.AndroidPlatform;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +21,7 @@ import com.example.dojocam.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    Button btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +39,25 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        if (! Python.isStarted()) {
+            Context context = this;
+            Python.start(new AndroidPlatform(context));
+        }
+
+        Python py = Python.getInstance();
+        PyObject pyobj = py.getModule("script");
+
+        btn = (Button)findViewById(R.id.button2);
+
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                PyObject obj = pyobj.callAttr("main");
+                btn.setText(obj.toString());
+            }
+        });
+
     }
 
 }
